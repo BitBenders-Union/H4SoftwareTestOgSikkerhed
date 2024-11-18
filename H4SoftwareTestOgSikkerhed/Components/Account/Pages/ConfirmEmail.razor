@@ -1,35 +1,37 @@
 ﻿@page "/Account/ConfirmEmail"
 
 @using System.Text
-@using H4SoftwareTestOgSikkerhed.Components.Account.Pages.Manage
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
+@using QRCoder
 @using H4SoftwareTestOgSikkerhed.Data
-
-
-@inject UserManager<ApplicationUser> UserManager
-@inject IdentityRedirectManager RedirectManager
-
-
 @using System.ComponentModel.DataAnnotations
 @using System.Globalization
 @using System.Text.Encodings.Web
 
-@inject UrlEncoder UrlEncoder
+@inject UserManager<ApplicationUser> UserManager
 @inject IdentityRedirectManager RedirectManager
-@inject ILogger<EnableAuthenticator> Logger
-
-@using QRCoder
+@inject IdentityUserAccessor UserAccessor
+@inject UrlEncoder UrlEncoder
 
 <PageTitle>Confirm email</PageTitle>
 
 <h1>Confirm email</h1>
 <StatusMessage Message="@statusMessage" />
+@if (imgSrc != null && imgSrc.Trim() != "")
+{
+    <div>
+        <h2>Download Google Authenticator and scan this QR Code to register for 2f Authentication</h2>
+        <img src="@imgSrc" alt="QR Code" style="width: 300px; height: 300px;" />
+
+    </div>
+}
+
 
 @code {
     private string? statusMessage;
+    private string? imgSrc;
     private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
-
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
@@ -42,7 +44,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-
         if (UserId is null || Code is null)
         {
             RedirectManager.RedirectTo("");
@@ -59,9 +60,7 @@
             var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(Code));
             var result = await UserManager.ConfirmEmailAsync(user, code);
             statusMessage = result.Succeeded ? "Thank you for confirming your email." : "Error confirming your email.";
-            await UserManager.ResetAuthenticatorKeyAsync(user);
-
-
+            await LoadSharedKeyAndQrCodeUriAsync(user);
         }
     }
 
@@ -78,9 +77,9 @@
         string sharedKey = FormatKey(unformattedKey!);
 
         var email = await UserManager.GetEmailAsync(user);
-
         string authenticatorUri = GenerateQrCodeUri(email!, unformattedKey!);
-        CreateQRImage(authenticatorUri);
+
+        CreateQrImage(authenticatorUri);
     }
 
     private string FormatKey(string unformattedKey)
@@ -110,13 +109,24 @@
             unformattedKey);
     }
 
-    private void CreateQRImage(string authenticatorUri)
+    private void CreateQrImage(string authenticatorUri)
     {
         using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
-        using (QRCodeData qrCodeData = qrGenerator.CreateQrCode("The text which should be encoded.", QRCodeGenerator.ECCLevel.Q))
+        using (QRCodeData qrCodeData = qrGenerator.CreateQrCode(authenticatorUri, QRCodeGenerator.ECCLevel.Q))
         using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
         {
             byte[] qrCodeImage = qrCode.GetGraphic(20);
+            string src = ByteToString(qrCodeImage);
+            imgSrc = $"data:image/png;base64,{src}";
         }
     }
+
+    private string ByteToString(byte[] byteArr)
+    {
+        string str = Convert.ToBase64String(byteArr);
+        return str;
+    }
+
+
+
 }
