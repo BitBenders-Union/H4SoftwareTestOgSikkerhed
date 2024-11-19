@@ -10,7 +10,7 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore
 @inject SignInManager<ApplicationUser> SignInManager
-@inject IEmailSender<ApplicationUser> EmailSender
+@inject ICustomEmailSender EmailSender 
 @inject ILogger<Register> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
@@ -67,12 +67,16 @@
 
     public async Task RegisterUser(EditContext editContext)
     {
+        // Create a new user instance
         var user = CreateUser();
-        user.TwoFactorEnabled = true; // Enabler twoFactor
+        user.TwoFactorEnabled = true; // Enable two-factor authentication (if desired)
 
+        // Set the username and email for the new user
         await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
         var emailStore = GetEmailStore();
         await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+        // Create the user with the provided password
         var result = await UserManager.CreateAsync(user, Input.Password);
 
         if (!result.Succeeded)
@@ -83,15 +87,20 @@
 
         Logger.LogInformation("User created a new account with password.");
 
+        // Generate the email confirmation token
         var userId = await UserManager.GetUserIdAsync(user);
         var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+        // Prepare the confirmation callback URL
         var callbackUrl = NavigationManager.GetUriWithQueryParameters(
-            NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
+            NavigationManager.ToAbsoluteUri("/Account/ConfirmEmail").AbsoluteUri,
             new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
 
-        await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
+        // Send the confirmation email using the custom EmailSender
+        await EmailSender.SendEmailConfirmationAsync(user, callbackUrl);  <!-- Use custom SendEmailConfirmationAsync method -->
 
+        // If confirmation is required, redirect to the confirmation page
         if (UserManager.Options.SignIn.RequireConfirmedAccount)
         {
             RedirectManager.RedirectTo(
@@ -99,6 +108,7 @@
                 new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
         }
 
+        // Sign in the user and redirect
         await SignInManager.SignInAsync(user, isPersistent: false);
         RedirectManager.RedirectTo(ReturnUrl);
     }

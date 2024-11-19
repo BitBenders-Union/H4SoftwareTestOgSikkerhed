@@ -3,11 +3,11 @@
 @using System.Text
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
-@using QRCoder
 @using H4SoftwareTestOgSikkerhed.Data
 @using System.ComponentModel.DataAnnotations
 @using System.Globalization
 @using System.Text.Encodings.Web
+@using QRCoder
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IdentityRedirectManager RedirectManager
@@ -23,10 +23,8 @@
     <div>
         <h2>Download Google Authenticator and scan this QR Code to register for 2f Authentication</h2>
         <img src="@imgSrc" alt="QR Code" style="width: 300px; height: 300px;" />
-
     </div>
 }
-
 
 @code {
     private string? statusMessage;
@@ -126,7 +124,4 @@
         string str = Convert.ToBase64String(byteArr);
         return str;
     }
-
-
-
 }
