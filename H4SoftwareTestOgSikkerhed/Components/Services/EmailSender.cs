@@ -29,6 +29,12 @@ public class EmailSender : ICustomEmailSender
         await SendEmailAsync(user, subject, htmlMessage);
     }
 
+    // Send password reset email
+    public async Task SendWeatherEmailAsync(ApplicationUser user, string subject, string Weatherdata)
+    {
+        await SendEmailAsync(user, subject, Weatherdata);
+    }
+
     // Send general email
     public async Task SendGeneralEmailAsync(ApplicationUser user, string subject, string message)
     {
