@@ -1,0 +1,83 @@
+﻿@page "/addrole"
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<Data.ApplicationUser> _userManager
+@* @inject NavigationManager NavigationManager *@
+@inject IServiceProvider _serviceProvider
+
+
+@* @attribute [Authorize(Roles = "Admin")] *@
+
+<h3>Add Role to User</h3>
+
+@* @if (!string.IsNullOrEmpty(SuccessMessage))
+{
+	<div class="alert alert-success">@SuccessMessage</div>
+}
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+	<div class="alert alert-danger">@ErrorMessage</div>
+}
+ *@
+
+<div>
+	User: <input type="text" @bind="userName" />
+</div>
+<div>
+	Role: <input type="text" @bind="role" />
+</div>
+<div>
+	<input type="button" value="Submit" @onclick="HandleSubmit" />
+</div>
+@if(message != null && message.Trim() != "")
+{
+	<div>@message</div>
+}
+
+
+@code {
+	// private string SuccessMessage;
+	// private string ErrorMessage;
+	public string userName { get; set; }
+	public string role { get; set; }
+	public string message;
+
+	private async Task HandleSubmit()
+	{
+		await CreateRoleAsync(role, userName);
+	}
+
+
+	private async Task CreateRoleAsync(string role, string user)
+	{
+		try
+		{
+
+			var roleManager = _serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+
+			var userManager = _userManager;
+			var userRoleCheck = await roleManager.RoleExistsAsync(role);
+
+			if (!userRoleCheck)
+			{
+				IdentityRole myRole = new IdentityRole(role);
+				await roleManager.CreateAsync(myRole);
+			}
+
+			var identityUser = await userManager.FindByEmailAsync(user);
+			if (identityUser == null)
+			{
+				// ErrorMessage = $"User {user} not found";
+				return;
+			}
+			await userManager.AddToRoleAsync(identityUser, role);
+		}
+		catch (Exception ex)
+		{
+			message = ex.Message;
+		}
+	}
+}
