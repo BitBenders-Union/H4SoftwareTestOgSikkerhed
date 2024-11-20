@@ -1,4 +1,9 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Identity
+
+@inject AuthenticationStateProvider _authenticationStateProvider;
+@inject IServiceProvider _serviceProvider;
+@inject UserManager<Data.ApplicationUser> _userManager
 
 @using Microsoft.AspNetCore.Identity;
 
@@ -80,6 +85,4 @@ else
 			// throw new DirectoryNotFoundException("User not found");
 
 	}
-
-
 }
