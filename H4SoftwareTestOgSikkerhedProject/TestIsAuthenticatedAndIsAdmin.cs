@@ -1,7 +1,5 @@
 using Bunit;
 using Bunit.TestDoubles;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace H4SoftwareTestOgSikkerhedProject;
 
@@ -28,6 +26,8 @@ public class TestIsAuthenticatedAndIsAdmin
 		                        <div>
 			                        <p>You are an Admin!</p>
 		                        </div>");
+
+
 
 
     }
