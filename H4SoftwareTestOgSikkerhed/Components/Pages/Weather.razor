@@ -1,63 +1,189 @@
 ﻿@page "/weather"
+@using System.Text
+@using H4SoftwareTestOgSikkerhed.Data
+@using Microsoft.AspNetCore.Identity
+@using System.ComponentModel.DataAnnotations
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
+@inject ICustomEmailSender EmailSender
 
 <PageTitle>Weather</PageTitle>
 
-<h1>Weather</h1>
+<AuthorizeView>
+    <Authorized>
 
-<p>This component demonstrates showing data.</p>
+        <h1>Weather</h1>
 
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+        <p>Here you can see all the Weather Data</p>
 
-@code {
-    private WeatherForecast[]? forecasts;
-
-    protected override async Task OnInitializedAsync()
-    {
-        // Simulate asynchronous loading to demonstrate a loading indicator
-        await Task.Delay(500);
-
-        var startDate = DateOnly.FromDateTime(DateTime.Now);
-        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        @if (forecasts == null)
         {
-            Date = startDate.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = summaries[Random.Shared.Next(summaries.Length)]
-        }).ToArray();
-    }
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Temp. (C)</th>
+                        <th>Temp. (F)</th>
+                        <th>Summary</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var forecast in forecasts)
+                    {
+                        <tr>
+                            <td>@forecast.Date.ToShortDateString()</td>
+                            <td>@forecast.TemperatureC</td>
+                            <td>@forecast.TemperatureF</td>
+                            <td>@forecast.Summary</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
 
-    private class WeatherForecast
-    {
-        public DateOnly Date { get; set; }
-        public int TemperatureC { get; set; }
-        public string? Summary { get; set; }
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-    }
-}
+            <button class="btn btn-primary" @onclick="SendEmail">Send Weather Data via Email</button>
+        }
+
+        @code {
+        [SupplyParameterFromForm]
+        private InputModel Input { get; set; } = new();
+
+        private WeatherForecast[]? forecasts;
+
+        protected override async Task OnInitializedAsync()
+        {
+            // Simulate asynchronous loading to demonstrate a loading indicator
+            await Task.Delay(500);
+
+            var startDate = DateOnly.FromDateTime(DateTime.Now);
+            var summaries = new[]
+            {
+        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm",
+        "Balmy", "Hot", "Sweltering", "Scorching"
+        };
+
+            forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            {
+                Date = startDate.AddDays(index),
+                TemperatureC = Random.Shared.Next(-20, 55),
+                Summary = summaries[Random.Shared.Next(summaries.Length)]
+            }).ToArray();
+        }
+
+        private async Task SendEmail()
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var currentUser = authState.User;
+
+            // Ensure the user is authenticated
+            if (currentUser?.Identity == null || !currentUser.Identity.IsAuthenticated)
+            {
+                Console.WriteLine("No authenticated user is logged in.");
+                return;
+            }
+
+            // Get the logged-in user's email from claims
+            var userEmail = currentUser.FindFirst(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                Console.WriteLine("Logged-in user's email is missing.");
+                return;
+            }
+
+            // Retrieve the ApplicationUser object from UserManager
+            var user = await UserManager.FindByEmailAsync(userEmail);
+            if (user == null)
+            {
+                Console.WriteLine("User not found in the database.");
+                return;
+            }
+
+            if (forecasts == null)
+            {
+                Console.WriteLine("No forecasts available to send.");
+                return;
+            }
+
+            // Build the email body using HTML
+            var emailBody = new StringBuilder();
+            emailBody.AppendLine("<h2>This is the weather data from the site</h2>");
+            emailBody.AppendLine("<p>Below is the weather forecast data you requested:</p>");
+            emailBody.AppendLine("<table style='border-collapse: collapse; width: 100%; background-color: #f9f9f9;'>");
+            emailBody.AppendLine("<thead>");
+            emailBody.AppendLine("<tr style='background-color: #e0e0e0;'>"); // Light grey header
+            emailBody.AppendLine("<th style='border: 1px solid black; padding: 8px; text-align: left;'>Date</th>");
+            emailBody.AppendLine("<th style='border: 1px solid black; padding: 8px; text-align: left;'>Temp. (C)</th>");
+            emailBody.AppendLine("<th style='border: 1px solid black; padding: 8px; text-align: left;'>Temp. (F)</th>");
+            emailBody.AppendLine("<th style='border: 1px solid black; padding: 8px; text-align: left;'>Summary</th>");
+            emailBody.AppendLine("</tr>");
+            emailBody.AppendLine("</thead>");
+            emailBody.AppendLine("<tbody>");
+
+            foreach (var forecast in forecasts)
+            {
+                emailBody.AppendLine("<tr>");
+                emailBody.AppendLine($"<td style='border: 1px solid black; padding: 8px;'>{forecast.Date.ToShortDateString()}</td>");
+                emailBody.AppendLine($"<td style='border: 1px solid black; padding: 8px;'>{forecast.TemperatureC}</td>");
+                emailBody.AppendLine($"<td style='border: 1px solid black; padding: 8px;'>{forecast.TemperatureF}</td>");
+                emailBody.AppendLine($"<td style='border: 1px solid black; padding: 8px;'>{forecast.Summary}</td>");
+                emailBody.AppendLine("</tr>");
+            }
+
+            emailBody.AppendLine("</tbody>");
+            emailBody.AppendLine("</table>");
+
+            // Send the email with the full ApplicationUser object
+            await EmailSender.SendWeatherEmailAsync(user, "Weather Data", emailBody.ToString());
+
+            Console.WriteLine($"Email sent successfully to {user.Email}.");
+        }
+
+
+
+
+        private class WeatherForecast
+        {
+            public DateOnly Date { get; set; }
+            public int TemperatureC { get; set; }
+            public string? Summary { get; set; }
+            public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        }
+
+        private sealed class InputModel
+        {
+            [Required]
+            [EmailAddress]
+            public string Email { get; set; } = "";
+        }
+        }
+    </Authorized>
+
+    <NotAuthorized>
+        <div style="display: flex; justify-content: center; align-items: center; height: 80vh; background-color: #f0f0f0; text-align: center;">
+            <div style="padding: 30px; max-width: 800px; background-color: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                <h1 style="font-family: Arial, sans-serif; color: #333;">Access Restricted</h1>
+                <p style="font-size: 18px; color: #666;">
+                    You need to be logged in to view and send the weather data.
+                </p>
+                <p style="font-size: 16px; color: #999;">
+                    Log in or create an account to access this feature and send weather updates via email.
+                </p>
+                <div style="margin-top: 20px;">
+                    <a href="/Account/Login"
+                       style="text-decoration: none; color: white; background-color: #007bff; padding: 10px 20px; border-radius: 5px; font-size: 16px; margin-right: 10px;">
+                        Log In
+                    </a>
+                    <a href="/Account/Register"
+                       style="text-decoration: none; color: white; background-color: #28a745; padding: 10px 20px; border-radius: 5px; font-size: 16px;">
+                        Sign Up
+                    </a>
+                </div>
+            </div>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
