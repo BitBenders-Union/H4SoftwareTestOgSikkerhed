@@ -1,17 +1,85 @@
 ﻿@page "/"
 
+@using Microsoft.AspNetCore.Identity;
+
+@inject AuthenticationStateProvider _authenticationStateProvider;
+@inject IServiceProvider _serviceProvider;
+@* @inject UserManager<Data.ApplicationUser> _userManager; *@
+
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
-Welcome to your new app.
+<p>Welcome to your new app.</p>
+
+@* <AuthorizeView> *@
+@*     <Authorized> *@
+@*         <div> *@
+@*             Du er logget ind! *@
+@*         </div> *@
+@*     </Authorized> *@
+@*     <NotAuthorized> *@
+@*         <div> *@
+@*             Du er ikke logget ind! *@
+@*         </div> *@
+@*     </NotAuthorized> *@
+@* </AuthorizeView> *@
+
+@if (isAuthenticated)
+{
+	<div>
+		<p>You are Authenticated!</p>
+	</div>
+	@if (isAdmin)
+	{
+		<div>
+			<p>You are an Admin!</p>
+		</div>
+	}
+}
+else
+{
+	<div>
+		<p>You are not Authenticated!</p>
+	</div>
+}
+
+@code {
+	private bool isAuthenticated;
+	private bool isAdmin;
+
+	protected override async Task OnInitializedAsync()
+	{
+		var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+		isAuthenticated = user.Identity.IsAuthenticated;
+		isAdmin = user.IsInRole("Admin");
+
+		// CreateUserRoleAsync("Admin", "admin@admin");
+	}
+
+	private async Task CreateUserRoleAsync(string role, string username)
+	{
+		var roleManager = _serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+		// var userManager = _userManager;
+
+		// add role if it does not exist
+
+		var userRoleCheck = await roleManager.RoleExistsAsync(role);
+		if (!userRoleCheck)
+		{
+			await roleManager.CreateAsync(new IdentityRole(role));
+		}
+
+		// add user to role
+		// var user = await userManager.FindByEmailAsync(username);
+
+		// if (user != null)
+			// await userManager.AddToRoleAsync(user, role);
+		// else
+			// throw new DirectoryNotFoundException("User not found");
+
+	}
 
 
-<AuthorizeView>
-    <Authorized>
-        <div> Du ER logget ind</div>
-    </Authorized>
-    <NotAuthorized>
-        <div> Du er IKKE logget ind</div>
-    </NotAuthorized>
-</AuthorizeView>
+}
