@@ -24,17 +24,29 @@ builder.Services.AddAuthentication(options =>
     })
     .AddIdentityCookies();
 
-// Use for Https And SQL
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// Use For MockDB With WSL - And SQL Lite
-    //var connectionString = builder.Configuration.GetConnectionString("MockDBConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-    //builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    //    options.UseSqlite(connectionString));
-    //builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+// if os is linux use sqlite
+var connectionString = string.Empty;
+
+if (OperatingSystem.IsLinux())
+{
+    // Use For MockDB With WSL - And SQL Lite
+    connectionString = builder.Configuration.GetConnectionString("MockDBConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlite(connectionString));
+    builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+}
+else
+{
+    // Use for Https And SQL
+    connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(connectionString));
+    builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+}
+
+
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
         .AddRoles<IdentityRole>()
