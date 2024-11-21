@@ -23,7 +23,7 @@
  *@
 
 <div>
-	User: <input type="text" @bind="userName" />
+	User: <input type="text" @bind="userName"/>
 </div>
 <div>
 	Role: <input type="text" @bind="role" />
@@ -40,13 +40,16 @@
 @code {
 	// private string SuccessMessage;
 	// private string ErrorMessage;
-	public string userName { get; set; }
-	public string role { get; set; }
-	public string message;
+	public string userName = string.Empty;
+	public string role = string.Empty;
+	public string message = string.Empty;
 
 	private async Task HandleSubmit()
 	{
 		await CreateRoleAsync(role, userName);
+
+		userName = "";
+		role = "";
 	}
 
 
@@ -80,14 +83,12 @@
 
 			if (user.Succeeded)
 			{
-				// SuccessMessage = $"User {user} added to role {role}";
-				userName = "";
-				role = "";
 				message = $"User {userName} added to role {role}";
 			}
 			else
 			{
-				message = $"Error: {string.Join(", ", user.Errors.Select(error => error.Description))}";
+
+				message = $"Failed to create role for User";
 			}
 
 			
