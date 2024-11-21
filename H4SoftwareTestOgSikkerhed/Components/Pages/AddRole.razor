@@ -7,7 +7,7 @@
 @inject IServiceProvider _serviceProvider
 
 
-@* @attribute [Authorize(Roles = "Admin")] *@
+@attribute [Authorize(Roles = "Admin")]
 
 <h3>Add Role to User</h3>
 
@@ -50,7 +50,7 @@
 	}
 
 
-	private async Task CreateRoleAsync(string role, string user)
+	private async Task CreateRoleAsync(string role, string userName)
 	{
 		try
 		{
@@ -67,13 +67,31 @@
 				await roleManager.CreateAsync(myRole);
 			}
 
-			var identityUser = await userManager.FindByEmailAsync(user);
+			var identityUser = await userManager.FindByEmailAsync(userName);
 			if (identityUser == null)
 			{
 				// ErrorMessage = $"User {user} not found";
 				return;
 			}
-			await userManager.AddToRoleAsync(identityUser, role);
+			
+			var user = await userManager.AddToRoleAsync(identityUser, role);
+
+			// if user has role display success message and make properties empty
+
+			if (user.Succeeded)
+			{
+				// SuccessMessage = $"User {user} added to role {role}";
+				userName = "";
+				role = "";
+				message = $"User {userName} added to role {role}";
+			}
+			else
+			{
+				message = $"Error: {string.Join(", ", user.Errors.Select(error => error.Description))}";
+			}
+
+			
+
 		}
 		catch (Exception ex)
 		{
