@@ -9,9 +9,10 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-userFolder = Path.Combine(userFolder, ".aspnet/https/");
-userFolder = Path.Combine(userFolder, "[Name]");
-builder.Configuration.GetSection("Kestrel:EndPoints:Https:Certifcate:Path").Value = userFolder;
+userFolder = Path.Combine(userFolder, ".aspnet");
+userFolder = Path.Combine(userFolder, "https");
+userFolder = Path.Combine(userFolder, "BitBendersCert.pfx");
+builder.Configuration.GetSection("Kestrel:EndPoints:Https:Certificate:Path").Value = userFolder;
 
 string kestrelPassword = builder.Configuration.GetValue<string>("KestrelPassword");
 builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Password").Value = kestrelPassword;
