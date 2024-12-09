@@ -4,7 +4,7 @@
 @using H4SoftwareTestOgSikkerhed.Data
 @using H4SoftwareTestOgSikkerhed.Models
 
-@attribute [Authorize]
+@attribute [Authorize(Policy = "RequireAuthentication")]
 
 @inject AuthenticationStateProvider _authenticationStateProvider;
 @inject IServiceProvider _serviceProvider;
@@ -46,13 +46,8 @@
         var user = authState.User;
 
         if (user.Identity.IsAuthenticated)
-        {
-            UserEmail = user.Identity.Name;
-        }
-        else
-        {
-            NavigationManager.NavigateTo("/Account/Login", forceLoad: true);
-        }
+        UserEmail = user.Identity.Name;
+        
     }
 
     private async Task OnSubmit()
