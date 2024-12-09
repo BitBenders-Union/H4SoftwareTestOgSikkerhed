@@ -73,7 +73,7 @@
 			Navigation.NavigateTo("/Account/Login", forceLoad: true);
 		}
 
-		LoadTodoItems();
+		LoadTodoItemsAsync();
 	} 
 
 	private async Task AddTodoItemAsync()
@@ -99,8 +99,21 @@
 		Model = new TodoItem();
 	}
 
-	private void LoadTodoItems()
+	private async Task LoadTodoItemsAsync()
 	{
+
+		var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+
+		var cpr = _dbContext.Cprs.FirstOrDefault(c => c.User == authState.User.Identity.Name);
+		
+		// get all ToDoList where Cpr == cpr
+
+		List<ToDoList> list = _dbContext.ToDoLists.Where(c => c.CprID == cpr).ToList();
+
+		foreach (var item in list)
+		{
+			TodoItems.Add(new TodoItem { Name = item.Item });
+		}
 
 	}
 
@@ -109,9 +122,8 @@
 
 
 		var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-		var userEmail = authState.User.Identity.Name;
 
-		var cpr = _dbContext.Cprs.FirstOrDefault(c => c.User == userEmail);
+		var cpr = _dbContext.Cprs.FirstOrDefault(c => c.User == authState.User.Identity.Name);
 
 		var todoItem = new ToDoList
 			{
