@@ -44,6 +44,10 @@ else
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(connectionString));
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+    connectionString = builder.Configuration.GetConnectionString("ToDoConnection") ?? throw new InvalidOperationException("Connection string 'ToDoConnection' not found.");
+    builder.Services.AddDbContext<ToDoDBContext>(options =>
+        options.UseSqlServer(connectionString));
+    builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 }
 
 
