@@ -1,25 +1,46 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
 @inject AuthenticationStateProvider _authenticationStateProvider;
 
-
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-            @if(isAdmin){
-                <a href="/addrole">Add Role</a>
-            }
+<div class="page" style="@(isAuthenticated ? "" : "width: 100%; height: 100vh; display: flex; justify-content: center; align-items: center; background-color: #f8f9fa;")">
+    @if (isAuthenticated)
+    {
+        <!-- Full layout when logged in -->
+        <div class="sidebar">
+            <NavMenu />
         </div>
 
-        <article class="content px-4">
+        <main>
+            <div class="top-row px-4">
+                <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+                @if (isAdmin)
+                {
+                    <a href="/addrole">Add Role</a>
+                }
+                <span class="user-email">
+                    <a href="/Account/Manage">@userEmail</a>
+                </span>
+
+                <form action="Account/Logout" method="post">
+                    <AntiforgeryToken />
+                    <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                    <button type="submit" class="btn btn-link logout-button">Logout</button>
+                </form>
+            </div>
+
+            <article class="content px-4">
+                @Body
+            </article>
+        </main>
+    }
+    else
+    {
+        <!-- Show the login content in the center -->
+        <main>
             @Body
-        </article>
-    </main>
+        </main>
+    }
 </div>
 
 <div id="blazor-error-ui">
@@ -28,13 +49,39 @@
     <a class="dismiss">🗙</a>
 </div>
 
-@code{
-
+@code {
     private bool isAdmin;
+    private bool isAuthenticated;
+    private string? userEmail;
+    private string? currentUrl;
 
-    protected override async Task OnInitializedAsync(){
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
         var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         isAdmin = user.IsInRole("Admin");
+        isAuthenticated = user.Identity?.IsAuthenticated ?? false;
+
+        if (isAuthenticated)
+        {
+            userEmail = user.Identity?.Name ?? "User"; // Default to "User" if Name is null
+        }
     }
 }
