@@ -125,6 +125,8 @@
 
 		var cpr = _dbContext.Cprs.FirstOrDefault(c => c.User == authState.User.Identity.Name);
 
+		// need to encrypt the todo item before saving it to the database
+
 		var todoItem = new ToDoList
 			{
 				CprID = cpr,
