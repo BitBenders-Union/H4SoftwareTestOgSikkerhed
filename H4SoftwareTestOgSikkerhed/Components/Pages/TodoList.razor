@@ -1,0 +1,100 @@
+﻿@page "/todolist"
+@using Microsoft.AspNetCore.Identity
+
+
+<PageTitle>Todo List</PageTitle>
+
+
+<div class="container mt-4">
+	<div class="row justify-content-center">
+		<div class="col-md-6">
+			<EditForm Model="Model" OnSubmit="AddTodoItem" FormName="TodoList" class="border p-4 rounded shadow-sm">
+				<div class="mb-3">
+					<label for="nameInput" class="form-label">Add Item To Todo List</label>
+					<InputText id="nameInput" @bind-Value="Model.Name" class="form-control" />
+				</div>
+				<div class="d-grid">
+					<button type="submit" class="btn btn-primary">Add</button>
+				</div>
+			</EditForm>
+		</div>
+	</div>
+	@if(ErrorMessage != null && ErrorMessage.Trim() != "")
+	{
+		<div class="text-center">
+			<p class="text-danger">@ErrorMessage</p>
+		</div>
+	}
+</div>
+
+
+<div class="container mt-4">
+	@if (TodoItems.Count > 0)
+	{
+		<div>
+			<h3>Todo Items</h3>
+			<hr />
+			@foreach (var item in TodoItems)
+			{
+				<div>
+					@item.Name
+					<hr />
+				</div>
+			}
+		</div>
+	}
+</div>
+
+
+@code {
+	// https://learn.microsoft.com/en-us/aspnet/core/blazor/forms/?view=aspnetcore-9.0
+
+	[SupplyParameterFromForm]
+	public TodoItem? Model { get; set; }
+
+	private List<TodoItem> TodoItems { get; set; } = new();
+	private string ErrorMessage;
+
+	protected override void OnInitialized()
+	{
+		Model ??= new();
+		LoadTodoItems();
+	} 
+
+	private void AddTodoItem()
+	{
+		if(Model.Name == null)
+		{
+			ErrorMessage = "You Must Write Something In The Todo List!";
+		}
+		else if (Model.Name.Trim() == "")
+		{
+			ErrorMessage = "Todo List Cannot Only Contain White-Space!";
+		}
+		else
+		{
+			TodoItems.Add(Model);
+			ErrorMessage = null;
+			AddTodoItemsToDatabase();
+		}
+	
+		// clear inputText
+		Model = new TodoItem();
+	}
+
+	private void LoadTodoItems()
+	{
+
+	}
+
+	private void AddTodoItemsToDatabase()
+	{
+
+	}
+
+	public class TodoItem
+	{
+		public string? Name { get; set; }
+	}
+
+}
