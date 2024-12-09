@@ -1,6 +1,8 @@
 ﻿@page "/todolist"
 @using Microsoft.AspNetCore.Identity
 
+@inject AuthenticationStateProvider _authenticationStateProvider;
+@inject NavigationManager Navigation
 
 <PageTitle>Todo List</PageTitle>
 
@@ -51,13 +53,22 @@
 
 	[SupplyParameterFromForm]
 	public TodoItem? Model { get; set; }
-
+	
 	private List<TodoItem> TodoItems { get; set; } = new();
 	private string ErrorMessage;
 
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
 		Model ??= new();
+		var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+		bool isAuthenticated = user.Identity.IsAuthenticated;
+
+		if (!user.Identity?.IsAuthenticated ?? false)
+		{
+			Navigation.NavigateTo("/Account/Login", forceLoad: true);
+		}
+
 		LoadTodoItems();
 	} 
 
