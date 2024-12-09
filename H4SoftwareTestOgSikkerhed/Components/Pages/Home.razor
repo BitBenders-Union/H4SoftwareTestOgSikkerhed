@@ -46,8 +46,8 @@
         var user = authState.User;
 
         if (user.Identity.IsAuthenticated)
-        UserEmail = user.Identity.Name;
-        
+            UserEmail = user.Identity.Name;
+
     }
 
     private async Task OnSubmit()
@@ -59,25 +59,35 @@
         }
 
         // Check if CPR exists for the authenticated user
-        var existingCpr = _dbContext.Cprs.FirstOrDefault(c => c.User == UserEmail && c.CprNumber == CprNumber);
+        var existingCpr = _dbContext.Cprs.FirstOrDefault(c => c.User == UserEmail);
 
-        if (existingCpr != null)
-        {
-            ValidationMessage = "The CPR number is already associated with your account.";
-        }
-        else
+        if (existingCpr == null )
         {
             // Add the new CPR number
             var newCpr = new Cpr
-            {
-                User = UserEmail,
-                CprNumber = CprNumber
-            };
+                {
+                    User = UserEmail,
+                    CprNumber = CprNumber
+                };
 
             _dbContext.Cprs.Add(newCpr);
             await _dbContext.SaveChangesAsync();
 
             ValidationMessage = "CPR number saved successfully.";
         }
+
+        else
+        {
+			if (existingCpr.CprNumber == CprNumber)
+			{
+                NavigationManager.NavigateTo("/todolist");
+			}
+            else
+            {
+                ValidationMessage = "Wrong CPR number. Try Again RETARD";
+
+            }
+        }
+		
     }
 }
