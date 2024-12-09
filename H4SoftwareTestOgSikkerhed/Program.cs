@@ -8,6 +8,14 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+userFolder = Path.Combine(userFolder, ".aspnet/https/");
+userFolder = Path.Combine(userFolder, "[Name]");
+builder.Configuration.GetSection("Kestrel:EndPoints:Https:Certifcate:Path").Value = userFolder;
+
+string kestrelPassword = builder.Configuration.GetSection("KestrelPassword").Value;
+
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
