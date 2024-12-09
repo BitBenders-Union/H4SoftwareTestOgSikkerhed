@@ -13,7 +13,8 @@ userFolder = Path.Combine(userFolder, ".aspnet/https/");
 userFolder = Path.Combine(userFolder, "[Name]");
 builder.Configuration.GetSection("Kestrel:EndPoints:Https:Certifcate:Path").Value = userFolder;
 
-string kestrelPassword = builder.Configuration.GetSection("KestrelPassword").Value;
+string kestrelPassword = builder.Configuration.GetValue<string>("KestrelPassword");
+builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Password").Value = kestrelPassword;
 
 
 // Add services to the container.
