@@ -89,25 +89,10 @@
 		else
 		{
 			TodoItems.Add(Model);
-			
 
-
-			var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-			var userEmail = authState.User.Identity.Name;
-
-			var cpr = _dbContext.Cprs.FirstOrDefault(c => c.User == userEmail);
-
-			var todoItem = new ToDoList
-			{
-					CprID = cpr,
-					Item = Model.Name
-			};
-
-			_dbContext.ToDoLists.Add(todoItem);
-			await _dbContext.SaveChangesAsync();
 
 			ErrorMessage = null;
-			AddTodoItemsToDatabase();
+			await AddTodoItemsToDatabaseAsync ();
 		}
 	
 		// clear inputText
@@ -119,10 +104,23 @@
 
 	}
 
-	private void AddTodoItemsToDatabase()
+	private async Task AddTodoItemsToDatabaseAsync()
 	{
-		// get cpr
 
+
+		var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+		var userEmail = authState.User.Identity.Name;
+
+		var cpr = _dbContext.Cprs.FirstOrDefault(c => c.User == userEmail);
+
+		var todoItem = new ToDoList
+			{
+				CprID = cpr,
+				Item = Model.Name
+			};
+
+		_dbContext.ToDoLists.Add(todoItem);
+		await _dbContext.SaveChangesAsync();
 
 	}
 
