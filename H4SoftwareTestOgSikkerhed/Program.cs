@@ -28,6 +28,7 @@ builder.Services.AddAuthentication(options =>
 
 // if os is linux use sqlite
 var connectionString = string.Empty;
+var connectionString2 = string.Empty;
 
 if (OperatingSystem.IsLinux())
 {
@@ -44,6 +45,10 @@ else
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(connectionString));
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+    connectionString2 = builder.Configuration.GetConnectionString("ToDoConnection") ?? throw new InvalidOperationException("Connection string 'ToDoConnection' not found.");
+    builder.Services.AddDbContext<ToDoDBContext>(options =>
+        options.UseSqlServer(connectionString2));
+    builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 }
 
 
@@ -59,9 +64,9 @@ builder.Services.AddSingleton<ICustomEmailSender, EmailSender>();
 // adds admin role to authorization policy
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("RequireAdminRole", policy =>
+    options.AddPolicy("RequireAuthentication", policy =>
     {
-        policy.RequireRole("Admin");
+        policy.RequireAuthenticatedUser();
     });
 }
 );

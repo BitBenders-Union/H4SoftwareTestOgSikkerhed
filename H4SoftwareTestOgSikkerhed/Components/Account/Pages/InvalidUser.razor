@@ -2,6 +2,45 @@
 
 <PageTitle>Invalid user</PageTitle>
 
-<h3>Invalid user</h3>
+<div class="invalid-user-container">
+    <div class="invalid-user-box">
+        <h3 class="text-center">Invalid User</h3>
+        <StatusMessage />
+    </div>
+</div>
 
-<StatusMessage />
+<style>
+    body {
+        margin: 0;
+        background-color: #f8f9fa; /* Light neutral background */
+    }
+
+    .invalid-user-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; /* Ensures full height for centering */
+        background-color: #f8f9fa; /* Optional: Adjust background color */
+        margin: 0;
+    }
+
+    .invalid-user-box {
+        width: 100%;
+        max-width: 400px;
+        padding: 2rem;
+        border-radius: 8px;
+        background-color: #ffffff; /* White card background */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for card effect */
+        text-align: center;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    h3 {
+        margin-top: 0;
+        font-size: 1.5rem;
+        color: #343a40; /* Darker text for emphasis */
+    }
+</style>

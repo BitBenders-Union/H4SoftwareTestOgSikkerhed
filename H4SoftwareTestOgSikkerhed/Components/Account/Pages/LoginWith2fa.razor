@@ -11,12 +11,12 @@
 
 <PageTitle>Two-factor authentication</PageTitle>
 
-<h1>Two-factor authentication</h1>
-<hr />
-<StatusMessage Message="@message" />
-<p>Your login is protected with an authenticator app. Enter your authenticator code below.</p>
-<div class="row">
-    <div class="col-md-4">
+<div class="login-container">
+    <div class="login-box">
+        <h1 class="text-center">Two-factor authentication</h1>
+        <hr />
+        <StatusMessage Message="@message" />
+        <p>Your login is protected with an authenticator app. Enter your authenticator code below.</p>
         <EditForm Model="Input" FormName="login-with-2fa" OnValidSubmit="OnValidSubmitAsync" method="post">
             <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
             <input type="hidden" name="RememberMe" value="@RememberMe" />
@@ -39,10 +39,35 @@
         </EditForm>
     </div>
 </div>
-<p>
-    Don't have access to your authenticator device? You can
-    <a href="Account/LoginWithRecoveryCode?ReturnUrl=@ReturnUrl">log in with a recovery code</a>.
-</p>
+
+<style>
+    body {
+        margin: 0;
+        background-color: #f8f9fa; /* Light neutral background */
+    }
+
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; /* Ensures full height for centering */
+        background-color: #f8f9fa; /* Optional: Adjust background color */
+        margin: 0;
+    }
+
+    .login-box {
+        width: 100%;
+        max-width: 400px;
+        padding: 2rem;
+        border-radius: 8px;
+        background-color: #ffffff; /* Optional: Adjust card color */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .text-center {
+        text-align: center;
+    }
+</style>
 
 @code {
     private string? message;
