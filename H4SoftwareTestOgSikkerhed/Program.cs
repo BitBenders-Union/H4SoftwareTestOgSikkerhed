@@ -64,9 +64,9 @@ builder.Services.AddSingleton<ICustomEmailSender, EmailSender>();
 // adds admin role to authorization policy
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("RequireAdminRole", policy =>
+    options.AddPolicy("RequireAuthentication", policy =>
     {
-        policy.RequireRole("Admin");
+        policy.RequireAuthenticatedUser();
     });
 }
 );
