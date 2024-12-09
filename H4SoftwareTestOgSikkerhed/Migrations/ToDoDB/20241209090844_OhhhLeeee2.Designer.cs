@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace H4SoftwareTestOgSikkerhed.Migrations.ToDoDB
 {
     [DbContext(typeof(ToDoDBContext))]
-    [Migration("20241209083246_OhhhLeeee")]
-    partial class OhhhLeeee
+    [Migration("20241209090844_OhhhLeeee2")]
+    partial class OhhhLeeee2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

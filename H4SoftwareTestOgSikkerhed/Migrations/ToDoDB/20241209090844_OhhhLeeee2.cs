@@ -5,7 +5,7 @@
 namespace H4SoftwareTestOgSikkerhed.Migrations.ToDoDB
 {
     /// <inheritdoc />
-    public partial class OhhhLeeee : Migration
+    public partial class OhhhLeeee2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
