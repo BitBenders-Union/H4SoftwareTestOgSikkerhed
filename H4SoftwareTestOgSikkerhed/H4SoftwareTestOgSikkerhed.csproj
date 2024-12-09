@@ -18,9 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Components\Pages\TodoList.razor">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>
