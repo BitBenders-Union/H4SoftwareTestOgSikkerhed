@@ -1,8 +1,12 @@
 ﻿@page "/todolist"
+@using H4SoftwareTestOgSikkerhed.Data
+@using H4SoftwareTestOgSikkerhed.Models
 @using Microsoft.AspNetCore.Identity
 
 @inject AuthenticationStateProvider _authenticationStateProvider;
 @inject NavigationManager Navigation
+@inject ToDoDBContext _dbContext;
+@inject UserManager<Data.ApplicationUser> _userManager
 
 <PageTitle>Todo List</PageTitle>
 
@@ -10,7 +14,7 @@
 <div class="container mt-4">
 	<div class="row justify-content-center">
 		<div class="col-md-6">
-			<EditForm Model="Model" OnSubmit="AddTodoItem" FormName="TodoList" class="border p-4 rounded shadow-sm">
+			<EditForm Model="Model" OnSubmit="AddTodoItemAsync" FormName="TodoList" class="border p-4 rounded shadow-sm">
 				<div class="mb-3">
 					<label for="nameInput" class="form-label">Add Item To Todo List</label>
 					<InputText id="nameInput" @bind-Value="Model.Name" class="form-control" />
@@ -72,7 +76,7 @@
 		LoadTodoItems();
 	} 
 
-	private void AddTodoItem()
+	private async Task AddTodoItemAsync()
 	{
 		if(Model.Name == null)
 		{
@@ -85,6 +89,23 @@
 		else
 		{
 			TodoItems.Add(Model);
+			
+
+
+			var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+			var userEmail = authState.User.Identity.Name;
+
+			var cpr = _dbContext.Cprs.FirstOrDefault(c => c.User == userEmail);
+
+			var todoItem = new ToDoList
+			{
+					CprID = cpr,
+					Item = Model.Name
+			};
+
+			_dbContext.ToDoLists.Add(todoItem);
+			await _dbContext.SaveChangesAsync();
+
 			ErrorMessage = null;
 			AddTodoItemsToDatabase();
 		}
@@ -100,6 +121,8 @@
 
 	private void AddTodoItemsToDatabase()
 	{
+		// get cpr
+
 
 	}
 
