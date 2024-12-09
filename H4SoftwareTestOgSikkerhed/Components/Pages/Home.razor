@@ -9,6 +9,7 @@
 @inject AuthenticationStateProvider _authenticationStateProvider;
 @inject IServiceProvider _serviceProvider;
 @inject ToDoDBContext _dbContext;
+@inject NavigationManager NavigationManager;
 
 <PageTitle>Home</PageTitle>
 
@@ -50,7 +51,7 @@
         }
         else
         {
-            // Redirect to login if not authenticated (handled automatically by [Authorize] in most cases)
+            NavigationManager.NavigateTo("/Account/Login", forceLoad: true);
         }
     }
 
