@@ -17,7 +17,25 @@ namespace H4SoftwareTestOgSikkerhed.Components.Services
             return salt;
         }
 
-        public byte[] StringHashingWithSalt(string input, byte[] salt)
+        // without salting
+        public byte[] StringHashing(string input)
+        {
+            Argon2id argon2 = new(Encoding.UTF8.GetBytes(input))
+            {
+                DegreeOfParallelism = 4,
+                Iterations = 2,
+                MemorySize = 1024
+            };
+
+
+            byte[] hash = argon2.GetBytes(32);
+
+            return hash;
+        }
+
+
+        // with salting
+        public byte[] StringHashing(string input, byte[] salt)
         {
             Argon2id argon2 = new(Encoding.UTF8.GetBytes(input))
             {

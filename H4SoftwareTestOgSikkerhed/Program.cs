@@ -9,24 +9,6 @@ using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 
-string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-userFolder = Path.Combine(userFolder, ".aspnet");
-userFolder = Path.Combine(userFolder, "https");
-userFolder = Path.Combine(userFolder, "BitBendersCert.pfx");
-builder.Configuration.GetSection("Kestrel:EndPoints:Https:Certificate:Path").Value = userFolder;
-
-string kestrelPassword = builder.Configuration.GetValue<string>("KestrelPassword");
-builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Password").Value = kestrelPassword;
-
-builder.WebHost.UseKestrel((context, serverOptions ) =>
-{
-    serverOptions.Configure(context.Configuration.GetSection("Kestrel"))
-        .Endpoint("HTTPS", listenOptions =>
-        {
-            listenOptions.HttpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls13;
-        });
-});
-
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -52,14 +34,37 @@ var connectionString2 = string.Empty;
 
 if (OperatingSystem.IsLinux())
 {
+
     // Use For MockDB With WSL - And SQL Lite
     connectionString = builder.Configuration.GetConnectionString("MockDBConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlite(connectionString));
+
+    connectionString2 = builder.Configuration.GetConnectionString("MockToDoConnection") ?? throw new InvalidOperationException("Connection string 'ToDoConnection' not found.");
+    builder.Services.AddDbContext<ToDoDBContext>(options =>
+        options.UseSqlite(connectionString2));
+
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 }
 else
 {
+    string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+    userFolder = Path.Combine(userFolder, ".aspnet");
+    userFolder = Path.Combine(userFolder, "https");
+    userFolder = Path.Combine(userFolder, "BitBendersCert.pfx");
+    builder.Configuration.GetSection("Kestrel:EndPoints:Https:Certificate:Path").Value = userFolder;
+
+    string kestrelPassword = builder.Configuration.GetValue<string>("KestrelPassword");
+    builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Password").Value = kestrelPassword;
+
+    builder.WebHost.UseKestrel((context, serverOptions) =>
+    {
+        serverOptions.Configure(context.Configuration.GetSection("Kestrel"))
+            .Endpoint("HTTPS", listenOptions =>
+            {
+                listenOptions.HttpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+            });
+    });
     // Use for Https And SQL
     connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
     builder.Services.AddDbContext<ApplicationDbContext>(options =>

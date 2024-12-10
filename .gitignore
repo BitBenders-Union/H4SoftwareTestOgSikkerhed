@@ -365,3 +365,6 @@ FodyWeavers.xsd
 # Ignore appsettings files
 appsettings.json
 appsettings.*.json
+
+H4SoftwareTestOgSikkerhed\appsettings.json
+H4SoftwareTestOgSikkerhed\appsettings.*.json
