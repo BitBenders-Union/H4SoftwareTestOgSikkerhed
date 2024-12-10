@@ -42,7 +42,7 @@ if (OperatingSystem.IsLinux())
 
     connectionString2 = builder.Configuration.GetConnectionString("MockToDoConnection") ?? throw new InvalidOperationException("Connection string 'ToDoConnection' not found.");
     builder.Services.AddDbContext<ToDoDBContext>(options =>
-        options.UseSqlServer(connectionString2));
+        options.UseSqlite(connectionString2));
 
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 }
