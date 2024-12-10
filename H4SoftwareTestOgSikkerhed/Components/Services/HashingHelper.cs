@@ -136,7 +136,8 @@ public class HashingHelper : IHashingHelper
     public bool VerifyBcrypt(string input, string storedHash)
     {
         if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(storedHash))
-            throw new ArgumentNullException("Input og storedHash kan ikke være null eller tom");
+            throw new ArgumentNullException(nameof(input), "Input og storedHash kan ikke være null eller tom");
+
 
         // Verificer om den indtastede adgangskode matcher den lagrede bcrypt-hash
         return BCrypt.Net.BCrypt.Verify(input, storedHash);

@@ -6,4 +6,5 @@ public interface IHashingHelper
     dynamic HashHMAC(dynamic input);
     dynamic HashPBKDF2(dynamic input);
     string HashBcrypt(string input);
+    bool VerifyBcrypt(string input, string storedHash);
 }
