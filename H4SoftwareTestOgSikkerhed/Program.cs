@@ -57,14 +57,15 @@ else
     string kestrelPassword = builder.Configuration.GetValue<string>("KestrelPassword");
     builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Password").Value = kestrelPassword;
 
-    builder.WebHost.UseKestrel((context, serverOptions) =>
-    {
-        serverOptions.Configure(context.Configuration.GetSection("Kestrel"))
-            .Endpoint("HTTPS", listenOptions =>
-            {
-                listenOptions.HttpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
-            });
-    });
+    //builder.WebHost.UseKestrel((context, serverOptions) =>
+    //{
+    //    serverOptions.Configure(context.Configuration.GetSection("Kestrel"))
+    //        .Endpoint("HTTPS", listenOptions =>
+    //        {
+    //            listenOptions.HttpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+    //        });
+    //});
+
     // Use for Https And SQL
     connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
