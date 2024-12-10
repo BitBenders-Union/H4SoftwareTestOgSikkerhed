@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,15 @@ builder.Configuration.GetSection("Kestrel:EndPoints:Https:Certificate:Path").Val
 
 string kestrelPassword = builder.Configuration.GetValue<string>("KestrelPassword");
 builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Password").Value = kestrelPassword;
+
+builder.WebHost.UseKestrel((context, serverOptions ) =>
+{
+    serverOptions.Configure(context.Configuration.GetSection("Kestrel"))
+        .Endpoint("HTTPS", listenOptions =>
+        {
+            listenOptions.HttpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls13;
+        });
+});
 
 
 // Add services to the container.
