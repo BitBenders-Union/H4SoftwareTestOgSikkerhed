@@ -35,14 +35,14 @@ var connectionString2 = string.Empty;
 if (OperatingSystem.IsLinux())
 {
 
+    connectionString2 = builder.Configuration.GetConnectionString("MockToDoConnection") ?? throw new InvalidOperationException("Connection string 'ToDoConnection' not found.");
+    builder.Services.AddDbContext<ToDoDBContext>(options =>
+        options.UseSqlite(connectionString2));
+
     // Use For MockDB With WSL - And SQL Lite
     connectionString = builder.Configuration.GetConnectionString("MockDBConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlite(connectionString));
-
-    connectionString2 = builder.Configuration.GetConnectionString("MockToDoConnection") ?? throw new InvalidOperationException("Connection string 'ToDoConnection' not found.");
-    builder.Services.AddDbContext<ToDoDBContext>(options =>
-        options.UseSqlite(connectionString2));
 
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 }
