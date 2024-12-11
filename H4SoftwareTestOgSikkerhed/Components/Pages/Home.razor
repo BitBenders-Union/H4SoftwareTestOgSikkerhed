@@ -53,11 +53,13 @@
         if (user.Identity.IsAuthenticated)
             UserEmail = user.Identity.Name;
 
-        byte[] bytes = Encoding.UTF8.GetBytes("inputString");
-        byte[] newBytes = _HashingHelper.HashPBKDF2(bytes);
+        // test af forskellige hashing metoder
 
-        string myString = "Hello World!";
-        string myNewString = _HashingHelper.HashPBKDF2(myString);
+        // byte[] bytes = Encoding.UTF8.GetBytes("inputString");
+        // byte[] newBytes = _HashingHelper.HashPBKDF2(bytes);
+
+        // string myString = "Hello World!";
+        // string myNewString = _HashingHelper.HashPBKDF2(myString);
 
     }
 
