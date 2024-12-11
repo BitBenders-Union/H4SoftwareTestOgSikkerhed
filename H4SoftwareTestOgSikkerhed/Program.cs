@@ -26,6 +26,7 @@ builder.Services.AddScoped<AsymetricEncryptionService>();
 builder.Services.AddSingleton<ICustomEmailSender, EmailSender>();
 builder.Services.AddSingleton<IHashingHelper, HashingHelper>();
 
+
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultScheme = IdentityConstants.ApplicationScheme;
