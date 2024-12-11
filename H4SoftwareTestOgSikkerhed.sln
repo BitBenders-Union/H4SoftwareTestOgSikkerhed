@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "H4SoftwareTestOgSikkerhed",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "H4SoftwareTestOgSikkerhedProject", "H4SoftwareTestOgSikkerhedProject\H4SoftwareTestOgSikkerhedProject.csproj", "{FA08A1B2-9FB5-4897-8C3D-1FB47AC360CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "H4SoftwareTestOgSikkerhedCrypteringsAPI", "H4SoftwareTestOgSikkerhedCrypteringsAPI\H4SoftwareTestOgSikkerhedCrypteringsAPI.csproj", "{DF4DE498-D4CD-483F-8396-E72344F176B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{FA08A1B2-9FB5-4897-8C3D-1FB47AC360CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA08A1B2-9FB5-4897-8C3D-1FB47AC360CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA08A1B2-9FB5-4897-8C3D-1FB47AC360CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF4DE498-D4CD-483F-8396-E72344F176B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF4DE498-D4CD-483F-8396-E72344F176B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF4DE498-D4CD-483F-8396-E72344F176B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF4DE498-D4CD-483F-8396-E72344F176B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

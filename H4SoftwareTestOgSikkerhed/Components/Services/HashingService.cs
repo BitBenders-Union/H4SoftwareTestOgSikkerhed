@@ -144,6 +144,8 @@ namespace H4SoftwareTestOgSikkerhed.Components.Services
         
         public T SHAHashing<T>(T input)
         {
+            if (input == null)
+                throw new ArgumentNullException("input must not be null");
             // if input is a string
             if (input is string)
             {
@@ -152,14 +154,20 @@ namespace H4SoftwareTestOgSikkerhed.Components.Services
 
             }
             // if input is byte[]
-            else
+            else if(input is byte[])
             {
                 return (T)(object)SHA256.Create().ComputeHash(input as byte[]);
+            }
+            else
+            {
+                throw new ArgumentException("Input must be of type string or byte[]");
             }
         }
 
         public T HMACHashing<T>(T input)
         {
+            if (input == null)
+                throw new ArgumentNullException("input must not be null");
             // if input is a string
             if (input is string)
             {
@@ -168,14 +176,20 @@ namespace H4SoftwareTestOgSikkerhed.Components.Services
 
             }
             // if input is byte[]
-            else
+            else if(input is byte[])
             {
                 return (T)(object)new HMACSHA256(Encoding.UTF8.GetBytes("po1hg12nabg626peg876nbag")).ComputeHash(input as byte[]);
+            }
+            else
+            {
+                throw new ArgumentException("Input must be of type string or byte[]");
             }
         }
 
         public T PBKDF2Hashing<T>(T input)
         {
+            if (input == null)
+                throw new ArgumentNullException("input must not be null");
             // if input is a string
             if (input is string)
             {
@@ -185,14 +199,19 @@ namespace H4SoftwareTestOgSikkerhed.Components.Services
 
             }
             // if input is byte[]
-            else
+            else if (input is byte[])
             {
                 return (T)(object)Rfc2898DeriveBytes.Pbkdf2(
                     input as byte[], 
                     Encoding.UTF8.GetBytes("po1hg12nabg626peg876nbag"), 
                     2, 
                     HashAlgorithmName.SHA256, 
-                    32);
+                    32
+                    );
+            }
+            else
+            {
+                throw new ArgumentException("Input must be of type string or byte[]");
             }
         }
 
@@ -219,6 +238,29 @@ namespace H4SoftwareTestOgSikkerhed.Components.Services
             }
         }
 
+
+        public T BCRYPTHashingSalted<T>(T input)
+        {
+            if (input == null)
+                throw new ArgumentNullException("input must not be null");
+            // if input is a string
+            if (input is string)
+            {
+                return (T)(object)BCrypt.Net.BCrypt.HashPassword(input as string, BCrypt.Net.BCrypt.GenerateSalt(), true, BCrypt.Net.HashType.SHA256);
+            }
+            // if input is byte[]
+            else if(input is byte[])
+            {
+                string inputBytes = Convert.ToBase64String(input as byte[]);
+                return (T)(object)BCrypt.Net.BCrypt.HashPassword(inputBytes, BCrypt.Net.BCrypt.GenerateSalt(), true, BCrypt.Net.HashType.SHA256);
+
+            }
+            else
+            {
+                throw new ArgumentException("Input must be of type string or byte[]");
+            }
+        }
+
         public bool BCRYPTVerify<T>(T input, string hash)
         {
             // if input is a string
@@ -227,26 +269,14 @@ namespace H4SoftwareTestOgSikkerhed.Components.Services
                 return BCrypt.Net.BCrypt.Verify(input as string, hash);
             }
             // if input is byte[]
-            else
+            else if (input is byte[])
             {
                 string inputBytes = Convert.ToBase64String(input as byte[]);
                 return BCrypt.Net.BCrypt.Verify(inputBytes, hash);
             }
-        }
-
-        public T BCRYPTHashingSalted<T>(T input)
-        {
-            // if input is a string
-            if (input is string)
-            {
-                return (T)(object)BCrypt.Net.BCrypt.HashPassword(input as string, BCrypt.Net.BCrypt.GenerateSalt(), true, BCrypt.Net.HashType.SHA256);
-            }
-            // if input is byte[]
             else
             {
-                string inputBytes = Convert.ToBase64String(input as byte[]);
-                return (T)(object)BCrypt.Net.BCrypt.HashPassword(inputBytes, BCrypt.Net.BCrypt.GenerateSalt(), true, BCrypt.Net.HashType.SHA256);
-
+                throw new ArgumentException("Input must be of type string or byte[]");
             }
         }
 
@@ -259,10 +289,14 @@ namespace H4SoftwareTestOgSikkerhed.Components.Services
                 return BCrypt.Net.BCrypt.Verify(input as string, hash, true, BCrypt.Net.HashType.SHA256);
             }
             // if input is byte[]
-            else
+            else if (input is byte[])
             {
                 string inputBytes = Convert.ToBase64String(input as byte[]);
                 return BCrypt.Net.BCrypt.Verify(inputBytes, hash);
+            }
+            else
+            {
+                throw new ArgumentException("Input must be of type string or byte[]");
             }
         }
 

@@ -20,7 +20,12 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
-builder.Services.AddScoped<IHashingHelper, HashingHelper>();
+builder.Services.AddScoped<SymetricEncryptionService>();
+builder.Services.AddScoped<AsymetricEncryptionService>();
+
+builder.Services.AddSingleton<ICustomEmailSender, EmailSender>();
+builder.Services.AddSingleton<IHashingHelper, HashingHelper>();
+
 
 builder.Services.AddAuthentication(options =>
     {
@@ -60,14 +65,14 @@ else
     string kestrelPassword = builder.Configuration.GetValue<string>("KestrelPassword");
     builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate:Password").Value = kestrelPassword;
 
-    //builder.WebHost.UseKestrel((context, serverOptions) =>
-    //{
-    //    serverOptions.Configure(context.Configuration.GetSection("Kestrel"))
-    //        .Endpoint("HTTPS", listenOptions =>
-    //        {
-    //            listenOptions.HttpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
-    //        });
-    //});
+    builder.WebHost.UseKestrel((context, serverOptions) =>
+    {
+        serverOptions.Configure(context.Configuration.GetSection("Kestrel"))
+            .Endpoint("HTTPS", listenOptions =>
+            {
+                listenOptions.HttpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+            });
+    });
 
     // Use for Https And SQL
     connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -88,7 +93,6 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
         .AddSignInManager()
         .AddDefaultTokenProviders();
 
-builder.Services.AddSingleton<ICustomEmailSender, EmailSender>();
 
 // adds admin role to authorization policy
 builder.Services.AddAuthorization(options =>

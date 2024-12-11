@@ -1,4 +1,5 @@
 ﻿@page "/todolist"
+@using H4SoftwareTestOgSikkerhed.Components.Services
 @using H4SoftwareTestOgSikkerhed.Data
 @using H4SoftwareTestOgSikkerhed.Models
 @using Microsoft.AspNetCore.Identity
@@ -7,6 +8,8 @@
 @inject NavigationManager Navigation
 @inject ToDoDBContext _dbContext;
 @inject UserManager<Data.ApplicationUser> _userManager
+@inject SymetricEncryptionService _encryptionService
+@inject AsymetricEncryptionService _asymetricEncryptionService
 
 <PageTitle>Todo List</PageTitle>
 
@@ -57,7 +60,7 @@
 
 	[SupplyParameterFromForm]
 	public TodoItem? Model { get; set; }
-	
+
 	private List<TodoItem> TodoItems { get; set; } = new();
 	private string ErrorMessage;
 
@@ -73,7 +76,7 @@
 			Navigation.NavigateTo("/Account/Login", forceLoad: true);
 		}
 
-		LoadTodoItemsAsync();
+		await LoadTodoItemsAsync();
 	} 
 
 	private async Task AddTodoItemAsync()
@@ -90,11 +93,10 @@
 		{
 			TodoItems.Add(Model);
 
-
 			ErrorMessage = null;
-			await AddTodoItemsToDatabaseAsync ();
+			await AddTodoItemsToDatabaseAsync();
 		}
-	
+
 		// clear inputText
 		Model = new TodoItem();
 	}
@@ -105,22 +107,21 @@
 		var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
 
 		var cpr = _dbContext.Cprs.FirstOrDefault(c => c.User == authState.User.Identity.Name);
-		
+
 		// get all ToDoList where Cpr == cpr
 
 		List<ToDoList> list = _dbContext.ToDoLists.Where(c => c.CprID == cpr).ToList();
 
 		foreach (var item in list)
 		{
-			TodoItems.Add(new TodoItem { Name = item.Item });
+			string name = _asymetricEncryptionService.DecryptAsymetric(item.Item);
+			TodoItems.Add(new TodoItem { Name = name });
 		}
 
 	}
 
 	private async Task AddTodoItemsToDatabaseAsync()
 	{
-
-
 		var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
 
 		var cpr = _dbContext.Cprs.FirstOrDefault(c => c.User == authState.User.Identity.Name);
@@ -130,7 +131,7 @@
 		var todoItem = new ToDoList
 			{
 				CprID = cpr,
-				Item = Model.Name
+				Item = await _asymetricEncryptionService.EncryptAsymetricAsync(Model.Name)
 			};
 
 		_dbContext.ToDoLists.Add(todoItem);

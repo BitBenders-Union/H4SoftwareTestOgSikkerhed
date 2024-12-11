@@ -368,3 +368,6 @@ appsettings.*.json
 
 H4SoftwareTestOgSikkerhed\appsettings.json
 H4SoftwareTestOgSikkerhed\appsettings.*.json
+
+H4SoftwareTestOgSikkerhed\privateKey.txt
+H4SoftwareTestOgSikkerhed\publicKey.txt
