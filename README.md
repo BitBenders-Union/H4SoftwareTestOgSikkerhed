@@ -9,7 +9,8 @@ This guide will walk you through the process of:
 5. Replacing LocalDB with SQLite in your .NET 8 project,
 6. Running your .NET 8 project using WSL in Visual Studio,
 7. Applying EF Core migrations to create your MockDB,
-8. Setting up your own certificate for HTTPS.
+8. Setting up your own certificate for HTTPS,
+9. Setting up Docker to run your project.
 
 ---
 
@@ -24,6 +25,7 @@ This guide will walk you through the process of:
 7. [Run .NET 8 Project in Visual Studio as WSL](#run-net-8-project-in-visual-studio-as-wsl)
 8. [Apply EF Core Migrations to Create MockDB](#apply-ef-core-migrations-to-create-mockdb)
 9. [Setup Your Own Certificate](#setup-your-own-certificate)
+10. [Run Your Project in Docker](#run-your-project-in-docker)
 
 ---
 
@@ -130,7 +132,7 @@ After Ubuntu is installed in WSL, you may need to change the DNS settings to avo
      \\wsl.localhost\Ubuntu-22.04\mnt\wsl
      ```
 
-2. **Edit the ****`resolv.conf`**** File:**
+2. **Edit the `resolv.conf` File:**
 
    - Open the Ubuntu terminal and run:
      ```bash
@@ -156,7 +158,7 @@ After Ubuntu is installed in WSL, you may need to change the DNS settings to avo
 
 To resolve the Untrusted Certificate error (common with ASP.NET Core and HTTPS), follow these steps to create the necessary folders in `%APPDATA%`.
 
-1. **Navigate to ****`%APPDATA%`****:**
+1. **Navigate to `%APPDATA%`:**
 
    - Open File Explorer and type the following in the address bar:
      ```
@@ -174,13 +176,13 @@ To resolve the Untrusted Certificate error (common with ASP.NET Core and HTTPS),
 
 Since WSL cannot run LocalDB, you'll need to configure your .NET 8 project to use SQLite instead. Follow these steps to set up the MockDB using SQLite:
 
-1. **Install ****`Microsoft.EntityFrameworkCore.Sqlite`****:**
+1. **Install `Microsoft.EntityFrameworkCore.Sqlite`:**
 
    - In Visual Studio, go to **Tools** > **NuGet Package Manager** > **Manage NuGet Packages for Solution**.
    - In the NuGet Package Manager window, search for `Microsoft.EntityFrameworkCore.Sqlite`.
    - Click **Install** to add the SQLite provider to your project.
 
-2. **Update ****`appsettings.json`****:**
+2. **Update `appsettings.json`:**
 
    - Open your `appsettings.json` file in your project.
    - Add a new connection string for SQLite:
@@ -190,7 +192,7 @@ Since WSL cannot run LocalDB, you'll need to configure your .NET 8 project to us
      }
      ```
 
-3. **Modify ****`Startup.cs`**** or ****`Program.cs`****:**
+3. **Modify `Startup.cs` or `Program.cs`:**
 
    - In `Startup.cs` or `Program.cs`, modify the database configuration to use SQLite instead of SQL Server:
      ```csharp
@@ -268,7 +270,7 @@ To set up a trusted self-signed certificate for your .NET 8 project, follow thes
      dotnet dev-certs https -ep %USERPROFILE%\.aspnet\https\[CertificateName].pfx -p [Password]
      ```
 
-4. **Update ****`appsettings.json`****:**
+4. **Update `appsettings.json`:**
 
    - Add the HTTPS configuration to your `appsettings.json`:
      ```json
@@ -288,7 +290,7 @@ To set up a trusted self-signed certificate for your .NET 8 project, follow thes
      }
      ```
 
-5. **Add Password to ****`secrets.json`****:**
+5. **Add Password to `secrets.json`:**
 
    - Store the password securely in `secrets.json`:
      ```json
@@ -297,7 +299,7 @@ To set up a trusted self-signed certificate for your .NET 8 project, follow thes
      }
      ```
 
-6. **Update ****`Program.cs`****:**
+6. **Update `Program.cs`:**
 
    - Dynamically load the certificate path and password from configuration:
      ```csharp
@@ -313,6 +315,54 @@ To set up a trusted self-signed certificate for your .NET 8 project, follow thes
 
 ---
 
-This guide should help you set up your development environment for running .NET 8 projects using WSL and SQLite with a trusted self-signed certificate. Enjoy coding!
+## 10. Run Your Project in Docker
 
-J
+To run your project in Docker as an alternative to Kestrel or IIS, follow these steps:
+
+1. **Install Docker Desktop:**
+
+   - Download and install Docker Desktop from the [Docker website](https://www.docker.com/products/docker-desktop).
+
+2. **Add Docker Support to Your Project:**
+
+   - Open the project in Visual Studio.
+   - Right-click on the project and select **Add** > **Docker Support**.
+   - In the Docker Support dialog:
+     - Ensure the **Container OS** is set to **Linux**. If it is not, change it to Linux.
+     - Set the **Container Build Type** to **Dockerfile**.
+     - Confirm the **Docker Build Context** is the path to your project folder.
+   - Click **OK** to apply the changes.
+
+3. **Build the Docker Image:**
+
+   - Open a terminal (Command Prompt, PowerShell, or Docker Desktop Terminal) and navigate to your project directory.
+   - Run the following command to build the Docker image:
+     ```bash
+     docker build -t [ImageName] .
+     ```
+
+4. **Handle Certificates (If Step 9 Is Completed):**
+
+   - If you have set up a self-signed certificate in Step 9, out-comment steps 4 and 6 in the certificate setup instructions.
+   - Include the certificate parameters in the Docker run command.
+
+5. **Run the Docker Container:**
+
+   - Execute the following command to run the container with the self-signed certificate:
+     ```bash
+     docker run --name [Name] -p 8000:80 -p 8001:443 \
+     -e ASPNETCORE_URLS="https://+;http://+" \
+     -e ASPNETCORE_HTTPS_PORT=8001 \
+     -e ASPNETCORE_Kestrel__Certificates__Default__Path=/https/[CertificateName] \
+     -e ASPNETCORE_Kestrel__Certificates__Default__Password="[Password to Certificate]" \
+     -e ASPNETCORE_ENVIRONMENT=Development \
+     -v %USERPROFILE%\.aspnet\https:/https/ \
+     [ImageName] .
+     ```
+
+   - Ensure all paths and environment variables are correctly set for your project.
+
+---
+
+This guide should help you set up and run your .NET 8 project using WSL, SQLite, self-signed certificates, and Docker. Enjoy coding!
+
