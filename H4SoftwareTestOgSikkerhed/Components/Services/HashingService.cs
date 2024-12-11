@@ -198,17 +198,24 @@ namespace H4SoftwareTestOgSikkerhed.Components.Services
 
         public T BCRYPTHashing<T>(T input)
         {
+            if(input == null)
+                throw new ArgumentNullException("input must not be null");
+
             // if input is a string
             if (input is string)
             {
                 return (T)(object)BCrypt.Net.BCrypt.HashPassword(input as string);
             }
             // if input is byte[]
-            else
+            else if(input is byte[])
             {
                 string inputBytes = Convert.ToBase64String(input as byte[]);
                 return (T)(object)BCrypt.Net.BCrypt.HashPassword(inputBytes);
 
+            }
+            else
+            {
+                throw new ArgumentException("Input must be of type string or byte[]");
             }
         }
 
