@@ -1,4 +1,5 @@
 ﻿@page "/todolist"
+@using H4SoftwareTestOgSikkerhed.Components.Services
 @using H4SoftwareTestOgSikkerhed.Data
 @using H4SoftwareTestOgSikkerhed.Models
 @using Microsoft.AspNetCore.Identity
@@ -7,6 +8,7 @@
 @inject NavigationManager Navigation
 @inject ToDoDBContext _dbContext;
 @inject UserManager<Data.ApplicationUser> _userManager
+@inject SymetricEncryptionService _encryptionService
 
 <PageTitle>Todo List</PageTitle>
 
@@ -73,7 +75,7 @@
 			Navigation.NavigateTo("/Account/Login", forceLoad: true);
 		}
 
-		LoadTodoItemsAsync();
+		await LoadTodoItemsAsync();
 	} 
 
 	private async Task AddTodoItemAsync()
@@ -92,7 +94,7 @@
 
 
 			ErrorMessage = null;
-			await AddTodoItemsToDatabaseAsync ();
+			await AddTodoItemsToDatabaseAsync();
 		}
 	
 		// clear inputText
@@ -112,15 +114,13 @@
 
 		foreach (var item in list)
 		{
-			TodoItems.Add(new TodoItem { Name = item.Item });
+			TodoItems.Add(new TodoItem { Name = _encryptionService.Decrypt(item.Item) });
 		}
 
 	}
 
 	private async Task AddTodoItemsToDatabaseAsync()
 	{
-
-
 		var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
 
 		var cpr = _dbContext.Cprs.FirstOrDefault(c => c.User == authState.User.Identity.Name);
@@ -130,7 +130,7 @@
 		var todoItem = new ToDoList
 			{
 				CprID = cpr,
-				Item = Model.Name
+				Item = _encryptionService.Encrypt(Model.Name)
 			};
 
 		_dbContext.ToDoLists.Add(todoItem);
