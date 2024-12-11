@@ -11,6 +11,7 @@
 @inject SymetricEncryptionService _encryptionService
 @inject AsymetricEncryptionService _asymetricEncryptionService
 
+
 <PageTitle>Todo List</PageTitle>
 
 
@@ -46,7 +47,7 @@
 			@foreach (var item in TodoItems)
 			{
 				<div>
-					@item.Name
+					@_asymetricEncryptionService.DecryptAsymetric(item.Name);
 					<hr />
 				</div>
 			}
@@ -66,6 +67,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
+
 		Model ??= new();
 		var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
 		var user = authState.User;
@@ -91,6 +93,7 @@
 		}
 		else
 		{
+			Model.Name = await _asymetricEncryptionService.EncryptAsymetricAsync(Model.Name);
 			TodoItems.Add(Model);
 
 			ErrorMessage = null;
@@ -114,8 +117,7 @@
 
 		foreach (var item in list)
 		{
-			string name = _asymetricEncryptionService.DecryptAsymetric(item.Item);
-			TodoItems.Add(new TodoItem { Name = name });
+			TodoItems.Add(new TodoItem { Name = item.Item });
 		}
 
 	}
@@ -131,7 +133,7 @@
 		var todoItem = new ToDoList
 			{
 				CprID = cpr,
-				Item = await _asymetricEncryptionService.EncryptAsymetricAsync(Model.Name)
+				Item = Model.Name
 			};
 
 		_dbContext.ToDoLists.Add(todoItem);

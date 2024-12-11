@@ -58,7 +58,8 @@
         // byte[] bytes = Encoding.UTF8.GetBytes("inputString");
         // byte[] newBytes = _HashingHelper.HashPBKDF2(bytes);
 
-        // string myString = "Hello World!";
+        string myString = "Hello World!";
+        string hashedCprNumber = _HashingHelper.HashSHA2(myString);
         // string myNewString = _HashingHelper.HashPBKDF2(myString);
 
     }
@@ -77,8 +78,8 @@
         if (existingCprOnUser == null)
         {
             // User doesn't have a CPR number, create a new hashed CPR
-            string hashedCprNumber = _HashingHelper.HashBcrypt(CprNumber);
-            // string hashedCprNumber = _HashingHelper.HashSHA2(CprNumber);
+            // string hashedCprNumber = _HashingHelper.HashBcrypt(CprNumber);
+            string hashedCprNumber = _HashingHelper.HashSHA2(CprNumber);
             // string hashedCprNumber = _HashingHelper.HashPBKDF2(CprNumber);
             // string hashedCprNumber = _HashingHelper.HashHMAC(CprNumber);
 
@@ -97,8 +98,8 @@
         else
         {
             // If CPR exists, validate it
-            bool isCprMatch = _HashingHelper.VerifyBcrypt(CprNumber, existingCprOnUser.CprNumber);
-            // bool isCprMatch = _HashingHelper.HashSHA2(CprNumber) == existingCprOnUser.CprNumber;
+            // bool isCprMatch = _HashingHelper.VerifyBcrypt(CprNumber, existingCprOnUser.CprNumber);
+            bool isCprMatch = _HashingHelper.HashSHA2(CprNumber) == existingCprOnUser.CprNumber;
             // bool isCprMatch = _HashingHelper.HashPBKDF2(CprNumber) == existingCprOnUser.CprNumber;
             // bool isCprMatch = _HashingHelper.HashHMAC(CprNumber) == existingCprOnUser.CprNumber;
 
