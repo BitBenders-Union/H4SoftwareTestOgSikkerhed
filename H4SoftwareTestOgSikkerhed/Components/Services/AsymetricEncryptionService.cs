@@ -40,12 +40,12 @@ public class AsymetricEncryptionService
 
     public async Task<string> EncryptAsymetricAsync(string data)
     {
-        string[] buffer = new string[2] { data, PublicKey };
+        string[] buffer = [data, PublicKey];
         string json = Newtonsoft.Json.JsonConvert.SerializeObject(buffer);
-        StringContent content = new(json, Encoding.UTF8, "application/json");
+        StringContent payload = new(json, Encoding.UTF8, "application/json");
 
         using HttpClient httpClient = new();
-        HttpResponseMessage response = await httpClient.PostAsync(apiUrl, content);
+        HttpResponseMessage response = await httpClient.PostAsync(apiUrl, payload);
         return response.Content.ReadAsStringAsync().Result;
     }
 }
