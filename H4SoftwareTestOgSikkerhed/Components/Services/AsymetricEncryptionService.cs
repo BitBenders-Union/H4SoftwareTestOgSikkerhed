@@ -4,6 +4,7 @@ namespace H4SoftwareTestOgSikkerhed.Components.Services;
 
 public class AsymetricEncryptionService
 {
+    private readonly string apiUrl = "https://localhost:5001/api/Encryption";
     private string PrivateKey { get; }
     public string PublicKey { get; }
     public AsymetricEncryptionService()
@@ -37,4 +38,14 @@ public class AsymetricEncryptionService
         }
     }
 
+    public async Task<string> EncryptAsymetricAsync(string data)
+    {
+        string[] buffer = new string[2] { data, PublicKey };
+        string json = Newtonsoft.Json.JsonConvert.SerializeObject(buffer);
+        StringContent content = new(json, Encoding.UTF8, "application/json");
+
+        using HttpClient httpClient = new();
+        HttpResponseMessage response = await httpClient.PostAsync(apiUrl, content);
+        return response.Content.ReadAsStringAsync().Result;
+    }
 }
