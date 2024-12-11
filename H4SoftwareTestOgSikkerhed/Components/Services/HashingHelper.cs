@@ -15,10 +15,10 @@ public class HashingHelper : IHashingHelper
             throw new ArgumentNullException(nameof(input), "Input kan ikke være null");
 
         // Hvis input er en string
-        if (input is string inputString)
+        if (input is string)
         {
             // Konverterer string til byte[]
-            byte[] inputBytes = Encoding.UTF8.GetBytes(inputString);
+            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
 
             // Bruger SHA256 til at beregne hash
             using (var sha256 = SHA256.Create())
@@ -29,13 +29,13 @@ public class HashingHelper : IHashingHelper
             }
         }
         // Hvis input er en byte[]
-        else if (input is byte[] inputBytes)
+        else if (input is byte[])
         {
             // Bruger SHA256 til at beregne hash
             using (var sha256 = SHA256.Create())
             {
                 // Returnerer hash som byte[] for byte[] input
-                return sha256.ComputeHash(inputBytes);
+                return sha256.ComputeHash(input);
             }
         }
         else
@@ -56,10 +56,10 @@ public class HashingHelper : IHashingHelper
         byte[] keyBytes = Encoding.UTF8.GetBytes(key);
 
         // Hvis input er en string
-        if (input is string inputString)
+        if (input is string)
         {
             // Konverterer string til byte[]
-            byte[] inputBytes = Encoding.UTF8.GetBytes(inputString);
+            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
             using (var hmac = new HMACSHA256(keyBytes)) // Bruger HMAC med SHA256 algoritme
             {
                 // Beregner HMAC og returnerer resultatet som Base64 string
@@ -68,12 +68,12 @@ public class HashingHelper : IHashingHelper
             }
         }
         // Hvis input er en byte[]
-        else if (input is byte[] inputBytes)
+        else if (input is byte[])
         {
             using (var hmac = new HMACSHA256(keyBytes)) // Bruger HMAC med SHA256 algoritme
             {
                 // Beregner HMAC og returnerer resultatet som byte[]
-                return hmac.ComputeHash(inputBytes);
+                return hmac.ComputeHash(input);
             }
         }
         else
@@ -96,22 +96,22 @@ public class HashingHelper : IHashingHelper
         string salt = "po1hg12nabg626peg876nbag";
 
         // Hvis input er en string
-        if (input is string inputString)
+        if (input is string)
         {
-            byte[] inputBytes = Encoding.UTF8.GetBytes(inputString);
+            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
 
             // Bruger PBKDF2 (Rfc2898DeriveBytes) til at generere hash
             using (var pbkdf2 = new Rfc2898DeriveBytes(inputBytes, Encoding.UTF8.GetBytes(salt), 10000, HashAlgorithmName.SHA256))
             {
                 // Returnerer hash som byte[] for string input
-                return pbkdf2.GetBytes(32); // 32 byte længde
+                return Convert.ToBase64String(pbkdf2.GetBytes(32)); // 32 byte længde
             }
         }
         // Hvis input er en byte[]
-        else if (input is byte[] inputBytes)
+        else if (input is byte[])
         {
             // Bruger PBKDF2 (Rfc2898DeriveBytes) til at generere hash
-            using (var pbkdf2 = new Rfc2898DeriveBytes(inputBytes, Encoding.UTF8.GetBytes(salt), 10000, HashAlgorithmName.SHA256))
+            using (var pbkdf2 = new Rfc2898DeriveBytes(input, Encoding.UTF8.GetBytes(salt), 10000, HashAlgorithmName.SHA256))
             {
                 // Returnerer hash som byte[] for byte[] input
                 return pbkdf2.GetBytes(32); // 32 byte længde
@@ -132,14 +132,14 @@ public class HashingHelper : IHashingHelper
         string inputString;
 
         // Handle string input
-        if (input is string strInput)
+        if (input is string)
         {
-            inputString = strInput;
+            inputString = input;
         }
         // Handle byte[] input
-        else if (input is byte[] byteInput)
+        else if (input is byte[])
         {
-            inputString = Encoding.UTF8.GetString(byteInput);
+            inputString = Encoding.UTF8.GetString(input);
         }
         else
         {
@@ -147,7 +147,12 @@ public class HashingHelper : IHashingHelper
         }
 
         // Hash the input string with bcrypt
-        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(inputString);
+        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(inputString, BCrypt.Net.BCrypt.GenerateSalt(), true, BCrypt.Net.HashType.SHA256);
+
+        if(input is byte[])
+        {
+            return Encoding.UTF8.GetBytes(hashedPassword);
+        }
 
         // Return the hashed password
         return hashedPassword;
@@ -161,7 +166,7 @@ public class HashingHelper : IHashingHelper
 
 
         // Verificer om den indtastede adgangskode matcher den lagrede bcrypt-hash
-        return BCrypt.Net.BCrypt.Verify(input, storedHash);
+        return BCrypt.Net.BCrypt.Verify(input, storedHash,true, BCrypt.Net.HashType.SHA256);
     }
 
 }
