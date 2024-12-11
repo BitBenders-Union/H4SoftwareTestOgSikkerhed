@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using H4SoftwareTestOgSikkerhed.Components.Interfaces
 @using H4SoftwareTestOgSikkerhed.Components.Services
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
@@ -11,6 +12,7 @@
 @inject IServiceProvider _serviceProvider;
 @inject ToDoDBContext _dbContext;
 @inject NavigationManager NavigationManager;
+@inject IHashingHelper _HashingHelper;
 
 <PageTitle>Home</PageTitle>
 
@@ -66,7 +68,7 @@
         if (existingCprOnUser == null)
         {
             // User doesn't have a CPR number, create a new hashed CPR
-            string hashedCprNumber = HashingService.HashingMethods.BcryptHashWithGlobalSalt(CprNumber);
+            string hashedCprNumber = _HashingHelper.HashBcrypt(CprNumber);
 
             // Add the new hashed CPR number to the database
             var newCpr = new Cpr
@@ -83,7 +85,8 @@
         else
         {
             // If CPR exists, validate it
-            bool isCprMatch = HashingService.HashingMethods.VerifyBcryptHash(CprNumber, existingCprOnUser.CprNumber);
+            bool isCprMatch = _HashingHelper.VerifyBcrypt(CprNumber, existingCprOnUser.CprNumber);
+
 
             if (isCprMatch)
             {

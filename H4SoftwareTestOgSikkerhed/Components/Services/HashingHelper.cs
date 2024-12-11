@@ -123,15 +123,36 @@ public class HashingHelper : IHashingHelper
             throw new ArgumentException("Input skal være af typen string eller byte[]", nameof(input));
         }
     }
-    public string HashBcrypt(string input)
+    public dynamic HashBcrypt(dynamic input)
     {
-        if (string.IsNullOrEmpty(input))
-            throw new ArgumentNullException(nameof(input), "Input kan ikke være null eller tom");
+        // Check if input is null or empty
+        if (input == null)
+            throw new ArgumentNullException(nameof(input), "Input cannot be null");
 
-        // Hash adgangskoden med bcrypt, som automatisk genererer salt
-        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(input);
+        string inputString;
+
+        // Handle string input
+        if (input is string strInput)
+        {
+            inputString = strInput;
+        }
+        // Handle byte[] input
+        else if (input is byte[] byteInput)
+        {
+            inputString = Encoding.UTF8.GetString(byteInput);
+        }
+        else
+        {
+            throw new ArgumentException("Input must be of type string or byte[]", nameof(input));
+        }
+
+        // Hash the input string with bcrypt
+        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(inputString);
+
+        // Return the hashed password
         return hashedPassword;
     }
+
 
     public bool VerifyBcrypt(string input, string storedHash)
     {

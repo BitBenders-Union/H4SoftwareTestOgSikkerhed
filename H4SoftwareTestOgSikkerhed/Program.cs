@@ -1,5 +1,6 @@
 using H4SoftwareTestOgSikkerhed.Components;
 using H4SoftwareTestOgSikkerhed.Components.Account;
+using H4SoftwareTestOgSikkerhed.Components.Interfaces;
 using H4SoftwareTestOgSikkerhed.Data;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -18,6 +19,7 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+builder.Services.AddScoped<IHashingHelper, IHashingHelper>();
 
 builder.Services.AddAuthentication(options =>
     {

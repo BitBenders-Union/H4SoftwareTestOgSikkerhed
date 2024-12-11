@@ -255,7 +255,7 @@ namespace H4SoftwareTestOgSikkerhed.Components.Services
             else
             {
                 string inputBytes = Convert.ToBase64String(input as byte[]);
-                return BCrypt.Net.BCrypt.Verify(inputBytes, hash, true, BCrypt.Net.HashType.SHA256);
+                return BCrypt.Net.BCrypt.Verify(inputBytes, hash);
             }
         }
 
